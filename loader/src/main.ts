@@ -1,5 +1,3 @@
-import { validateWidgetKey, showLoadingState, showErrorMessage } from "./validation.js";
-
 type LoaderConfig = {
   widgetKey: string;
   containerId: string;
@@ -18,7 +16,7 @@ function getCurrentScript(): HTMLScriptElement | null {
 function readConfig(script: HTMLScriptElement): LoaderConfig | null {
   const widgetKey = script.dataset.widgetKey;
   const containerId = script.dataset.containerId || "moving-place-widget";
-  const widgetOrigin = script.dataset.widgetOrigin || "http://localhost:5173";
+  const widgetOrigin = "http://localhost:5173";
   const apiUrl = script.dataset.apiUrl;
   const theme = script.dataset.theme || "light";
   const primaryColor = script.dataset.primaryColor;
@@ -84,35 +82,32 @@ async function mount() {
   }
 
   // Validate widget key if API URL is provided
-  if (config.apiUrl) {
-    showLoadingState(container);
+  // if (config.apiUrl) {
+  //   showLoadingState(container);
 
-    const isValid = await validateWidgetKey(config.apiUrl, config.widgetKey);
+  //   const isValid = await validateWidgetKey(config.apiUrl, config.widgetKey);
 
-    if (!isValid) {
-      showErrorMessage(container);
-      console.error("[MovingPlaceWidget] Widget key validation failed");
-      return;
-    }
-  } else {
-    console.warn(
-      "[MovingPlaceWidget] No data-api-url provided, skipping validation",
-    );
-  }
+  //   if (!isValid) {
+  //     showErrorMessage(container);
+  //     console.error("[MovingPlaceWidget] Widget key validation failed");
+  //     return;
+  //   }
+  // } else {
+  //   console.warn(
+  //     "[MovingPlaceWidget] No data-api-url provided, skipping validation",
+  //   );
+  // }
 
   const iframe = createIframe(config);
   container.innerHTML = ""; // Clear loading state
   container.appendChild(iframe);
 
   window.addEventListener("message", (event: MessageEvent) => {
-    console.log(event, "eventt");
-
     if (event.origin !== config.widgetOrigin) return;
     if (!event.data || typeof event.data !== "object") return;
 
     if (event.data.type === "WIDGET_RESIZE") {
       iframe.style.height = `${event.data.payload.height}px`;
-      console.log(iframe, "iframeeee");
     }
 
     if (event.data.type === "WIDGET_COMPLETE") {
